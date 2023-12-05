@@ -10,8 +10,9 @@ class Map(nl: Array[Integer]) {
     def apply(n: Integer): Integer = {
         var res = n
         //println(("apply", n, nl(0), nl(1), nl(2)))
-        if (n >= nl(0) && n <= n+nl(2)) {
-            res = n - nl(0) + nl(1)
+        if (n >= nl(1) && n < nl(1) + nl(2)) {
+            println(("applying", n, nl(0), nl(1), nl(2)))
+            res = n - nl(1) + nl(0)
             println("mapping:", n, res)
         }
         res
