@@ -74,22 +74,41 @@ def apply_mappings(ml: List[MapSet], snin: Long): Long = {
     sn
 }
 
+def pairup(ll : List[Long]): List[List[Long]] = {
+    var res: List[List[Long]] = List()
+    var odd: Boolean = true
+    var last: Long = 0
+    for( l <- ll ) {
+       if ( odd ) {
+         last = l
+       } else {
+         res = List(last, l) :: res
+         println("pair: ", last, l)
+       }
+       odd = !odd
+    }
+    res
+}
 
 var loc: Long = 0
-var seeds: List[Long] = List()
+var seedpairs: List[List[Long]] = List()
 var lines = scala.io.Source.stdin.getLines()
 var seedline = lines.next
 if (seedline.startsWith("seeds:" )){
-    seeds = seedline.substring(7).split(" ").toList.map(stoLong)
+    var seeds = seedline.substring(7).split(" ").toList.map(stoLong)
+    seedpairs = pairup(seeds)
+
 }
 var mappings : List[MapSet] = getmaps(lines)
 
 var minloc:Long = 9999999999L
-for (s <- seeds) {
-    loc = apply_mappings(mappings, s)
-    println(("seed", s, "maps to", loc))
-    if (loc < minloc) {
-         minloc = loc
+for (sp <- seedpairs) {
+    for (s <-sp(0) to (sp(0) + sp(1))) {
+      loc = apply_mappings(mappings, s)
+      println(("seed", s, "maps to", loc))
+      if (loc < minloc) {
+           minloc = loc
+      }
     }
 }
 println(("minloc = ",  minloc))
