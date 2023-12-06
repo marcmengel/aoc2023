@@ -30,8 +30,8 @@ class Map(nl: List[Long]) {
                     llout = end :: end+1  :: llout
                     println("partitioning at ", end)
               }
-              if( prev < nl(1) && nl(1)+1 < cur ) {
-                    llout = nl(1) :: nl(1)+1 :: llout
+              if( prev < nl(1)-1 && nl(1) < cur ) {
+                    llout = nl(1)-1 :: nl(1) :: llout
                     println("partitioning at ", nl(1))
               }
               var llseq : Seq[Long] = llout
