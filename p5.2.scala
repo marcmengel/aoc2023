@@ -7,13 +7,41 @@ class Map(nl: List[Long]) {
 
     def apply(n: Long): Long = {
         var res = n
-        //println(("apply", n, nl(0), nl(1), nl(2)))
         if (n >= nl(1) && n < nl(1) + nl(2)) {
-            println(("applying", n, nl(0), nl(1), nl(2)))
             res = n - nl(1) + nl(0)
-            println("mapping:", n, res)
+            println(("mapping", n, "->", res, "(",nl(0), nl(1), nl(2),")"))
         }
         res
+    }
+    def partition(ll : List[Long]) : List[Long] = {
+        var llout = ll
+        var llit = ll.iterator
+        var prev = 0L
+        var odd: Boolean = false
+        for( cur <- llit ) {
+            odd = !odd
+            if (odd) {
+                 prev = cur
+            } else { 
+              //println("checking range:", prev, cur)
+              var end = nl(1) + nl(2) - 1
+
+              if( prev < end && end+1 < cur ) {
+                    llout = end :: end+1  :: llout
+                    println("partitioning at ", end)
+              }
+              if( prev < nl(1) && nl(1)+1 < cur ) {
+                    llout = nl(1) :: nl(1)+1 :: llout
+                    println("partitioning at ", nl(1))
+              }
+              var llseq : Seq[Long] = llout
+              llseq = llseq.sorted
+              llout = llseq.toList
+          }
+        }
+        var llseq : Seq[Long] = llout
+        llseq = llseq.sorted
+        return llseq.toList
     }
 }
 
@@ -21,7 +49,6 @@ class MapSet(_name: String, ml: Array[Map]) {
   def apply(snin: Long): Long = {
       var sn = snin
       for (m <- ml) {
-          //println(("applying", m))
           sn = m.apply(sn)
           if (sn != snin) {
              return sn
@@ -30,6 +57,26 @@ class MapSet(_name: String, ml: Array[Map]) {
       sn
   }
   def name(): String = { _name }
+  def partition(ll : List[Long]) : List[Long] = {
+      var llout = ll
+      for (m <- ml) {
+          llout = m.partition(llout)
+      }
+      return llout
+   }
+}
+
+def partition_and_map(ml: List[MapSet], ll: List[Long]): List[Long] = {
+   var llout = ll
+   for (m <- ml) {
+      llout = m.partition(llout)
+      llout = llout.map(m.apply)
+      var llseq : Seq[Long] = llout
+      llseq = llseq.sorted
+      llout = llseq.toList
+      println("p_and_m: ", m.name(), llout.length, llout)
+   }
+   return llout
 }
 
 def apply_mapset(ml: Array[MapSet], snin: Long): Long = {
@@ -90,6 +137,17 @@ def pairup(ll : List[Long]): List[List[Long]] = {
     res
 }
 
+def pairparts(sl : List[List[Long]] ) : List[Long] = {
+    var llout : List[Long] = List()
+    for( sp <- sl ) {
+        llout = sp(0) :: sp(0) + sp(1) - 1 :: llout
+    }
+    var llseq : Seq[Long] = llout
+    llseq = llseq.sorted
+    return llseq.toList
+    return llout
+}
+
 var loc: Long = 0
 var seedpairs: List[List[Long]] = List()
 var lines = scala.io.Source.stdin.getLines()
@@ -101,14 +159,16 @@ if (seedline.startsWith("seeds:" )){
 }
 var mappings : List[MapSet] = getmaps(lines)
 
+
 var minloc:Long = 9999999999L
-for (sp <- seedpairs) {
-    for (s <-sp(0) to (sp(0) + sp(1))) {
-      loc = apply_mappings(mappings, s)
-      println(("seed", s, "maps to", loc))
-      if (loc < minloc) {
-           minloc = loc
-      }
+// make initial partition lists
+var llwork = pairparts(seedpairs)
+print("inital seed ranges: ", llwork)
+llwork = partition_and_map( mappings, llwork)
+for( loc <- llwork) {
+    if (loc < minloc) {
+         println("new min", loc)
+         minloc = loc
     }
 }
 println(("minloc = ",  minloc))
